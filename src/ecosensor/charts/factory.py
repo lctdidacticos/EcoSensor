@@ -4,7 +4,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-TEMPLATE = "plotly_white"
+TEMPLATE = "plotly_dark"
 COLOR_SEQUENCE = ["#0F766E", "#2563EB", "#D97706", "#7C3AED", "#DC2626", "#0891B2"]
 EXCLUDED_GEO_LABELS = {"sin localidad", "sin ubicacion"}
 
