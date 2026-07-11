@@ -1,0 +1,40 @@
+EcoSensor – Estadísticas:
+Se trata del desarrollo de una Web App, que genere un Dashboard Interactivo, para utilizar los datos contenidos en un archivo tipo CSV, generado a su vez, por una App para Windows, que complementa el Aparato EcoSensor, dicho archivo contiene Mediciones Ambientales tomadas en Tiempo Real, que incluyen datos de Geolocalización.
+Se pretende Hospedar este Dashboard en la WEB, usando los recursos y facilidades que nos brinda la Plataforma RENDER, con la perspectiva posterior de migrar, la actual Aplicación para W+10, hacia esta plataforma, pasando de una App de Escritorio, instalable, a una PWA, que evite procesos de instalación exclusivos para W+10 y así darle acceso Multiplataforma a nuestro proyecto. 
+Las funcionalidades deseadas en este Dashboard serian:
+1-Generacion de diferentes Graficas contra Tiempo, seleccionando los datos de interés, el intervalo de Datos en el Tiempo y el formato de la gráfica, por el usuario, el archivo CSV ya contiene los Datos debidamente identificados, con el encabezamiento con los nombres de cada Columna.
+2- Se debe incluir una Grafica de BARRAS, comparativa que emplea los datos de la Geolocalización, contra los parámetros medidos, ambos seleccionados por el usuario, para realizar evaluaciones comparativas entre diferentes Territorios.
+3-El usuario tendrá la opción de DESCARGAR, los Gráficos que seleccione y compartirlo en un formato de Tipo “universal” que permita distribuir estas Graficas, para los fines Académicos de este proyecto.
+4-El Dashboard debe ser capaz de realizar una evaluación Estadística de los Datos recibidos y mostrar una sección de Evaluación o Recomendaciones, a partir de estos Datos, opcionalmente se pueden solicitar parámetros de Referencia de indicadores ambientales para comparar con los Datos medidos y emitir Recomendaciones.
+Vamos a iniciar subiendo el archivo CSV de interés, para que sirva de referencia en todo el diseño de la App.
+Comenta que estrategia seguiremos, que recursos de PYTHON vamos a emplear y que estructura tendrá nuestro proyecto, ya he creado una carpeta que contiene este PROMPT, vamos a crear todas la carpetas del proyecto desde este directorio: C:\CODEX\EcoSensor
+
+030726_Actualizacion
+1-El nuevo Titulo del Dashboard, lo vamos a cambiar por: "EcoSensor - Analítica" y vamos a incluir, a lado de este Titulo, el LOGO_LCT que ubique en la carpeta EcoSensor.
+2-Vamos agrupar las actuales ubicaciones por coordenadas, que se muestran en la Comparativa Territorial, tomando un punto central y promediando las mediciones que se tomaron en un Radio  de unos 3Km alrededor del punto central, siendo las coordenadas de este punto central, las que utilizamos para sustituirlo por el nombre de la Localidad y mostrar el nombre de dicha Localidad en el Grafico, de esta forma hacemos el Grafico de Barras comparativo, mas "comprensible" para el estudiante, pues asocia sus mediciones al nombre del lugar y NO a coordenada......comenta si entiendes este propósito y como implementar esa actualización, comenta si esta nueva forma "promediando mediciones" y el criterio de los 3Km de radio es el mas adecuado, o cuanto seria lo recomendable..?? 
+
+050726_Actualizacion:
+
+1-Aumenta el render del LOGO un 20%
+2-Esta App esta destinada al análisis de los datos en el Laboratorio, posterior a su recolección en campo, en estas condiciones consideramos que debe existir acceso a Internet, por tanto la Aplicación debe ser capaz de conectarse a la API que proporciona la conversión de coordenadas GPS a nombre de las Localidades visitadas, por lo que el Comparativo Territorial, debe mostrar Mediciones vs Nombre de Localidad.
+3-La funcionalidad "Radio por Localidad (Km)" debe reajustar la Grafica "Comparativa Territorial" ante los ajustes que realice el usuario de manera Dinámica, para reflejar efectivamente, como cambian estos parámetros medidos, de una Localidad a otra.
+4-Las Graficas en el Tiempo, deben tener un Slider, que controle el intervalo de Tiempo escogido por el usuario, para agrupar las mediciones para visualizarlas, en nuestro caso deben ser los siguientes intervalos: 5 / 15 / 30 min y 1 / 2 / 4 horas.
+5-Los Graficos de Comparativa Territorial, también deben se exportables a un formato HTML para compartir estos resultados.
+
+080726_Actualizacion:
+
+1-Reorganizar las opciones de los Filtros de la Barra Lateral en el siguiente Orden de arriba hacia abajo:
+Subir CSV de EcoSensor
+Intervalo de Fechas
+Parámetros a Graficar
+Tipo de Grafica
+Slider: Agrupar mediciones cada
+Slider: Radio por localidad
+Usar API para nombres de localidad
+
+2-La Comparativa Territorial debe mostrar dos Menú de Opción múltiple, que permitan seleccionar:
+Las Localidades de interés a incluir en el Grafico comparativo por Localidades 
+Las variables medidas que integraran el Grafico
+
+3-Se necesita exportar el Dashboard obtenido con las mediciones y Localidades a un formato HTML, para compartirlo al final de una investigación en Campo.
+

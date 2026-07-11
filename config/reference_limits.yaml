@@ -1,0 +1,30 @@
+# Limites iniciales editables para evaluacion operativa del dashboard.
+# No reemplazan normas regulatorias ni criterios medicos. Ajustar por proyecto, pais o protocolo academico.
+CO2(ppm):
+  warning: 800
+  critical: 1000
+  high_message: Revisar ventilacion del area medida.
+PM2.5(ug/m3):
+  warning: 15
+  critical: 35
+  high_message: Revisar fuentes de particulas finas y ventilacion.
+PM10.0(ug/m3):
+  warning: 45
+  critical: 100
+  high_message: Evaluar polvo, combustion o actividades de resuspension.
+VOC(index):
+  warning: 150
+  critical: 250
+  high_message: Revisar fuentes de compuestos organicos volatiles.
+NOx(index):
+  warning: 20
+  critical: 50
+  high_message: Revisar posible exposicion a combustion o trafico cercano.
+Temperatura(C):
+  warning_low: 18
+  warning_high: 30
+  high_message: Temperatura fuera del rango operativo sugerido.
+Humedad(%):
+  warning_low: 30
+  warning_high: 70
+  high_message: Humedad fuera del rango operativo sugerido.
