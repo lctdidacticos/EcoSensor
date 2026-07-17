@@ -1,3 +1,3 @@
-from .loader import DataProfile, load_measurements
+from .loader import DataProfile, DataQualityReport, load_measurements
 
-__all__ = ["DataProfile", "load_measurements"]
+__all__ = ["DataProfile", "DataQualityReport", "load_measurements"]

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import base64
+import html
 import sys
 
 import pandas as pd
@@ -39,15 +40,45 @@ st.set_page_config(
     layout="wide",
 )
 
+st.markdown(
+    """
+    <style>
+    .block-container {padding-top: 1.2rem; padding-bottom: 2rem;}
+    .ecosensor-header {display:flex; align-items:center; gap:1.25rem; background:#0f3d3e; padding:1rem 1.25rem; border-radius:8px; margin-bottom:1rem;}
+    .ecosensor-logo {height:77px; width:auto; flex:0 0 auto;}
+    .ecosensor-title {color:white; margin:0; font-size:2.25rem; line-height:1.1;}
+    .ecosensor-subtitle {color:#d7f3ef; margin:0.35rem 0 0 0;}
+    .status-grid {display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:.75rem; margin:.5rem 0 1rem;}
+    .status-card {border-left:6px solid; border-radius:8px; padding:.8rem 1rem; background:#111827; box-shadow:0 1px 3px rgba(0,0,0,.25);}
+    .status-card h4 {margin:0 0 .35rem; color:#f9fafb;}
+    .status-card p {margin:.2rem 0; color:#d1d5db; font-size:.9rem;}
+    .status-normal {border-color:#22c55e;}
+    .status-alerta {border-color:#f59e0b;}
+    .status-critico {border-color:#ef4444;}
+    @media (max-width: 640px) {
+        .block-container {padding-left:.75rem; padding-right:.75rem; padding-top:.6rem;}
+        .ecosensor-header {gap:.75rem; padding:.75rem; align-items:flex-start;}
+        .ecosensor-logo {height:48px;}
+        .ecosensor-title {font-size:1.35rem !important;}
+        .ecosensor-subtitle {font-size:.82rem;}
+        div[data-testid="stMetric"] {padding:.45rem;}
+        div[data-testid="stMetricValue"] {font-size:1.25rem;}
+        .status-grid {grid-template-columns:1fr;}
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 if LOGO_FILE.exists():
     logo_base64 = base64.b64encode(LOGO_FILE.read_bytes()).decode("ascii")
     st.markdown(
         f"""
-        <div style="display:flex;align-items:center;gap:1.25rem;background:#0f3d3e;padding:1rem 1.25rem;border-radius:8px;margin-bottom:1rem;">
-            <img src="data:image/png;base64,{logo_base64}" style="height:77px;width:auto;" />
+        <div class="ecosensor-header">
+            <img class="ecosensor-logo" src="data:image/png;base64,{logo_base64}" />
             <div>
-                <h1 style="color:white;margin:0;font-size:2.25rem;line-height:1.1;">EcoSensor - Analitica</h1>
-                <p style="color:#d7f3ef;margin:0.35rem 0 0 0;">Dashboard interactivo para mediciones ambientales en CSV.</p>
+                <h1 class="ecosensor-title">EcoSensor - Analitica</h1>
+                <p class="ecosensor-subtitle">Dashboard interactivo para mediciones ambientales en CSV.</p>
             </div>
         </div>
         """,
@@ -171,12 +202,37 @@ else:
 
 filtered_df = _apply_time_filter(df, profile.timestamp_column, selected_date_range)
 
-metric_cards = st.columns(5)
+metric_cards = st.columns(5, gap="small")
 metric_cards[0].metric("Registros", f"{len(filtered_df):,}")
 metric_cards[1].metric("Parametros", len(profile.numeric_columns))
 metric_cards[2].metric("GPS valido", f"{profile.gps_row_count:,}")
 metric_cards[3].metric("Inicio", profile.start_time.strftime("%Y-%m-%d %H:%M") if profile.start_time else "N/D")
 metric_cards[4].metric("Fin", profile.end_time.strftime("%Y-%m-%d %H:%M") if profile.end_time else "N/D")
+
+with st.expander("Calidad y validacion del archivo", expanded=False):
+    quality = profile.quality
+    if quality:
+        quality_columns = st.columns(4)
+        quality_columns[0].metric("Filas originales", f"{quality.original_rows:,}")
+        quality_columns[1].metric("Filas aceptadas", f"{quality.accepted_rows:,}")
+        quality_columns[2].metric("Fechas invalidas", f"{quality.invalid_timestamp_rows:,}")
+        quality_columns[3].metric("GPS valido", f"{profile.gps_row_count:,}")
+        issues = []
+        if quality.empty_rows:
+            issues.append(f"{quality.empty_rows:,} filas completamente vacias")
+        if quality.invalid_timestamp_rows:
+            issues.append(f"{quality.invalid_timestamp_rows:,} filas descartadas por fecha/hora invalida")
+        if quality.incomplete_gps_rows:
+            issues.append(f"{quality.incomplete_gps_rows:,} filas con solo una coordenada GPS")
+        if quality.out_of_range_gps_rows:
+            issues.append(f"{quality.out_of_range_gps_rows:,} filas con coordenadas fuera de rango")
+        for column, count in quality.numeric_parse_failures.items():
+            issues.append(f"{count:,} valores no numericos en {column}")
+        if issues:
+            st.warning("Se detectaron observaciones de calidad:\n\n- " + "\n- ".join(issues))
+        else:
+            st.success("El archivo supero las validaciones basicas de estructura, fecha, valores numericos y GPS.")
+        st.caption("Las filas sin fecha valida se excluyen del analisis. Las coordenadas incompletas o fuera de rango no se usan en el mapa.")
 
 if not metrics:
     st.warning("Selecciona al menos un parametro numerico.")
@@ -270,6 +326,19 @@ st.subheader("Evaluacion y recomendaciones")
 reference_limits = load_reference_limits(REFERENCE_LIMITS)
 recommendations = build_recommendations(summary, reference_limits)
 if recommendations:
+    cards = []
+    for recommendation in recommendations:
+        status = str(recommendation["Estado"])
+        status_class = "status-" + status.lower()
+        cards.append(
+            f'<div class="status-card {status_class}">'
+            f'<h4>{html.escape(str(recommendation["Parametro"]))} · {html.escape(status)}</h4>'
+            f'<p>Promedio: {html.escape(str(recommendation["Promedio"]))} · Maximo: {html.escape(str(recommendation["Maximo"]))}</p>'
+            f'<p>{html.escape(str(recommendation["Recomendacion"]))}</p>'
+            "</div>"
+        )
+    st.markdown('<div class="status-grid">' + "".join(cards) + "</div>", unsafe_allow_html=True)
+    st.caption("Semaforos calculados con los limites configurables del proyecto; no sustituyen normas regulatorias ni criterios medicos.")
     st.dataframe(pd.DataFrame(recommendations), width="stretch", hide_index=True)
 else:
     st.info("No hay limites de referencia configurados para los parametros seleccionados.")
