@@ -210,7 +210,7 @@ metric_cards[3].metric("Inicio", profile.start_time.strftime("%Y-%m-%d %H:%M") i
 metric_cards[4].metric("Fin", profile.end_time.strftime("%Y-%m-%d %H:%M") if profile.end_time else "N/D")
 
 with st.expander("Calidad y validacion del archivo", expanded=False):
-    quality = profile.quality
+    quality = getattr(profile, "quality", None)
     if quality:
         quality_columns = st.columns(4)
         quality_columns[0].metric("Filas originales", f"{quality.original_rows:,}")
@@ -233,6 +233,8 @@ with st.expander("Calidad y validacion del archivo", expanded=False):
         else:
             st.success("El archivo supero las validaciones basicas de estructura, fecha, valores numericos y GPS.")
         st.caption("Las filas sin fecha valida se excluyen del analisis. Las coordenadas incompletas o fuera de rango no se usan en el mapa.")
+    else:
+        st.info("El reporte detallado de calidad estara disponible al completar la actualizacion del cargador de datos.")
 
 if not metrics:
     st.warning("Selecciona al menos un parametro numerico.")
